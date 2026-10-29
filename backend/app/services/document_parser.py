@@ -52,9 +52,22 @@ class DocumentParserService:
 
         for page_idx in range(total_pages):
             page = doc[page_idx]
-            page_text = page.get_text("text") or ""
-            # Normalize whitespace
-            clean_text = "\n".join(line.strip() for line in page_text.splitlines() if line.strip())
+            blocks = page.get_text("blocks")
+            cleaned_blocks = []
+            for b in blocks:
+                # b = (x0, y0, x1, y1, text, block_no, block_type)
+                if len(b) >= 7 and b[6] == 0 and b[4]:
+                    raw_block = b[4].strip()
+                    if raw_block:
+                        lines = [line.strip() for line in raw_block.splitlines() if line.strip()]
+                        block_text = " ".join(lines)
+                        cleaned_blocks.append(block_text)
+
+            clean_text = "\n\n".join(cleaned_blocks)
+            if not clean_text:
+                fallback = page.get_text("text") or ""
+                clean_text = "\n".join(l.strip() for l in fallback.splitlines() if l.strip())
+
             total_extracted_text += len(clean_text)
             pages.append(ParsedPage(
                 page_number=page_idx + 1,

@@ -55,7 +55,7 @@ class ChunkingService:
 
     def _chunk_text(self, text: str, page_number: int, start_index: int) -> List[ChunkItem]:
         # Split into sentences using punctuation boundaries
-        sentence_delimiters = re.compile(r'(?<=[.!?\n])\s+')
+        sentence_delimiters = re.compile(r'(?<=[.!?])\s+|\n{2,}|\n+')
         raw_sentences = [s.strip() for s in sentence_delimiters.split(text) if s.strip()]
 
         if not raw_sentences:
